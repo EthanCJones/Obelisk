@@ -8,6 +8,7 @@
 package com.ethancjones.obelisk.module;
 
 import com.ethancjones.obelisk.module.modules.HUD;
+import com.ethancjones.obelisk.module.modules.Speed;
 import com.ethancjones.obelisk.util.Logger;
 
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ public class ModuleAPI
     public static void initialise()
     {
         register(new HUD());
+        register(new Speed());
         modules.forEach(Module::initialise);
     }
 

@@ -35,7 +35,7 @@ public class CommandAPI
             commands.put(command.getHostString(), new ArrayList<>());
         }
         commands.get(command.getHostString()).add(command);
-        Logger.log("Command registered: " + command);
+        Logger.log("Registered command: " + command);
     }
 
     //Used to determine when a command should be called in the client

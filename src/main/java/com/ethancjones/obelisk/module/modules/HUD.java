@@ -15,11 +15,11 @@ import net.minecraft.client.MinecraftClient;
 
 public class HUD extends Module
 {
-    public Command<Boolean> watermark;
+    private final Command<Boolean> watermark;
 
     public HUD()
     {
-        super("HUD", 0);
+        super("HUD", 0, 0);
         watermark = new Command<>(getName(), "watermark", true);
         toggle();
     }

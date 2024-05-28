@@ -16,7 +16,7 @@ import java.util.TreeSet;
 public class EventAPI
 {
     //Stores all currently active listeners to be called
-    private static HashMap<Class<? extends Event>, TreeSet<Listener<?>>> eventListenerMap = new HashMap<>();
+    private final static HashMap<Class<? extends Event>, TreeSet<Listener<?>>> eventListenerMap = new HashMap<>();
 
     //Registers a listener to be called with the event
     //Allows for multiple listeners to be registered

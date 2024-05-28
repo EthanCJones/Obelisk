@@ -106,15 +106,15 @@ public class Command<T>
         }
         else if (value instanceof Integer)
         {
-            setValue((T) Integer.valueOf(args[1]));
+            setValue((T) Integer.valueOf(args[2]));
         }
         else if (value instanceof Float)
         {
-            setValue((T) Float.valueOf(args[1]));
+            setValue((T) Float.valueOf(args[2]));
         }
         else if (value instanceof Double)
         {
-            setValue((T) Double.valueOf(args[1]));
+            setValue((T) Double.valueOf(args[2]));
         }
         Logger.log("Command run: " + hostString + " " + callString);
     }
