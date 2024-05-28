@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "obelisk",
+  "version": "${version}",
+  "name": "Obelisk",
+  "description": "",
+  "authors": [],
+  "contact": {
+    "repo": "https://github.com/EthanCJones/Obelisk"
+  },
+  "license": "All-Rights-Reserved",
+  "icon": "assets/obelisk/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "main": [
+      "com.ethancjones.obelisk.Obelisk"
+    ]
+  },
+  "mixins": [
+    "obelisk.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}
