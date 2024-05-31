@@ -9,11 +9,15 @@ package com.ethancjones.obelisk.command;
 
 import com.ethancjones.obelisk.event.EventAPI;
 import com.ethancjones.obelisk.event.Listener;
+import com.ethancjones.obelisk.event.events.EventKeyPress;
 import com.ethancjones.obelisk.event.events.EventSendPacket;
 import com.ethancjones.obelisk.module.Module;
 import com.ethancjones.obelisk.module.ModuleAPI;
 import com.ethancjones.obelisk.util.Logger;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.network.packet.c2s.play.ChatMessageC2SPacket;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,11 +25,14 @@ import java.util.HashMap;
 public class CommandAPI
 {
     private static final HashMap<String, ArrayList<Command<?>>> commands = new HashMap<>();
+    private static final String prefix = ".";
+    private static final int prefixKey = GLFW.GLFW_KEY_PERIOD;
 
     public static void initialise()
     {
         commands.put("", new ArrayList<>());
         EventAPI.register(onSendPacket);
+        EventAPI.register(onKeyPress);
     }
 
     public static void register(Command<?> command)
@@ -47,7 +54,7 @@ public class CommandAPI
         {
             if (event.packet instanceof ChatMessageC2SPacket)
             {
-                if (((ChatMessageC2SPacket) event.packet).chatMessage().startsWith("."))
+                if (((ChatMessageC2SPacket) event.packet).chatMessage().startsWith(prefix))
                 {
                     event.cancelCall();
                     String[] noDotArgs = ((ChatMessageC2SPacket) event.packet).chatMessage().substring(1).split(" ");
@@ -83,6 +90,18 @@ public class CommandAPI
                         }
                     });
                 }
+            }
+        }
+    };
+
+    public static final Listener<EventKeyPress> onKeyPress = new Listener<>()
+    {
+        @Override
+        public void call(EventKeyPress event)
+        {
+            if (event.key == prefixKey)
+            {
+                MinecraftClient.getInstance().setScreen(new ChatScreen(""));
             }
         }
     };

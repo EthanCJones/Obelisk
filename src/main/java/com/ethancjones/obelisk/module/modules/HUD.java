@@ -11,16 +11,19 @@ import com.ethancjones.obelisk.command.Command;
 import com.ethancjones.obelisk.event.Listener;
 import com.ethancjones.obelisk.event.events.EventRender2D;
 import com.ethancjones.obelisk.module.Module;
+import com.ethancjones.obelisk.module.ModuleAPI;
 import net.minecraft.client.MinecraftClient;
 
 public class HUD extends Module
 {
     private final Command<Boolean> watermark;
+    private final Command<Boolean> list;
 
     public HUD()
     {
         super("HUD", 0, 0);
         watermark = new Command<>(getName(), "watermark", true);
+        list = new Command<>(getName(), "list", true);
         toggle();
     }
 
@@ -32,6 +35,24 @@ public class HUD extends Module
             if (watermark.getValue())
             {
                 event.context.drawTextWithShadow(MinecraftClient.getInstance().textRenderer, "Obelisk", 2, 2, 0xFFFFFFFF);
+            }
+
+            if (list.getValue())
+            {
+                int screenWidth = MinecraftClient.getInstance().getWindow().getScaledWidth();
+                int y = 2;
+
+                for (Module module : ModuleAPI.getModules())
+                {
+                    if (module.isEnabled())
+                    {
+                        if (module.getColour() != 0)
+                        {
+                            event.context.drawTextWithShadow(MinecraftClient.getInstance().textRenderer, module.getName(), screenWidth - MinecraftClient.getInstance().textRenderer.getWidth(module.getName()) - 2, y, module.getColour());
+                            y += MinecraftClient.getInstance().textRenderer.fontHeight;
+                        }
+                    }
+                }
             }
         }
     };

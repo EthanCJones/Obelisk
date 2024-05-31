@@ -112,4 +112,14 @@ public class Module
     {
         return name;
     }
+
+    public boolean isEnabled()
+    {
+        return enabled;
+    }
+
+    public int getColour()
+    {
+        return colour;
+    }
 }

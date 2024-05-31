@@ -7,6 +7,7 @@
  */
 package com.ethancjones.obelisk.module;
 
+import com.ethancjones.obelisk.module.modules.ESP;
 import com.ethancjones.obelisk.module.modules.HUD;
 import com.ethancjones.obelisk.module.modules.Speed;
 import com.ethancjones.obelisk.util.Logger;
@@ -22,6 +23,7 @@ public class ModuleAPI
     {
         register(new HUD());
         register(new Speed());
+        register(new ESP());
         modules.forEach(Module::initialise);
     }
 

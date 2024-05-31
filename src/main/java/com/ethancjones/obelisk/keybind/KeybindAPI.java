@@ -10,6 +10,7 @@ package com.ethancjones.obelisk.keybind;
 import com.ethancjones.obelisk.event.EventAPI;
 import com.ethancjones.obelisk.event.Listener;
 import com.ethancjones.obelisk.event.events.EventInit;
+import com.ethancjones.obelisk.event.events.EventKeyPress;
 import com.ethancjones.obelisk.util.Logger;
 import net.minecraft.client.MinecraftClient;
 import org.lwjgl.glfw.GLFW;
@@ -46,6 +47,7 @@ public class KeybindAPI
                 MinecraftClient.getInstance().keyboard.onKey(window, key, scancode, action, mods);
                 if (action == 1)
                 {
+                    EventAPI.call(new EventKeyPress(key));
                     if (keybinds.containsKey(key))
                     {
                         keybinds.get(key).forEach(Runnable::run);
