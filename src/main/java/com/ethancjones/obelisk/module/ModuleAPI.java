@@ -7,6 +7,7 @@
  */
 package com.ethancjones.obelisk.module;
 
+import com.ethancjones.obelisk.module.modules.Chat;
 import com.ethancjones.obelisk.module.modules.ESP;
 import com.ethancjones.obelisk.module.modules.HUD;
 import com.ethancjones.obelisk.module.modules.Speed;
@@ -24,6 +25,7 @@ public class ModuleAPI
         register(new HUD());
         register(new Speed());
         register(new ESP());
+        register(new Chat());
         modules.forEach(Module::initialise);
     }
 
@@ -36,5 +38,18 @@ public class ModuleAPI
     public static ArrayList<Module> getModules()
     {
         return modules;
+    }
+
+    public static Module getModuleByClass(Class clazz)
+    {
+        for (Module module : modules)
+        {
+            if (module.getClass() == clazz)
+            {
+                return module;
+            }
+        }
+
+        return null;
     }
 }

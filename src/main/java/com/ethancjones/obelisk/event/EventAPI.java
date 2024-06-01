@@ -11,12 +11,13 @@ import com.ethancjones.obelisk.util.Logger;
 
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.TreeSet;
 
 public class EventAPI
 {
     //Stores all currently active listeners to be called
-    private final static HashMap<Class<? extends Event>, TreeSet<Listener<?>>> eventListenerMap = new HashMap<>();
+    private final static HashMap<Class<? extends Event>, LinkedList<Listener<?>>> eventListenerMap = new HashMap<>();
 
     //Registers a listener to be called with the event
     //Allows for multiple listeners to be registered
@@ -24,11 +25,9 @@ public class EventAPI
     {
         for (Listener<?> listener : listeners)
         {
-            if (!eventListenerMap.containsKey(listener.getEvent()))
-            {
-                eventListenerMap.put(listener.getEvent(), new TreeSet<>(Comparator.comparing(Listener::getPriority)));
-            }
+            eventListenerMap.putIfAbsent(listener.getEvent(), new LinkedList<>());
             eventListenerMap.get(listener.getEvent()).add(listener);
+            eventListenerMap.get(listener.getEvent()).sort(Comparator.comparing(Listener::getPriority));
             Logger.log("Registered listener " + listener);
         }
     }
@@ -39,10 +38,6 @@ public class EventAPI
     {
         for (Listener<?> listener : listeners)
         {
-            if (!eventListenerMap.containsKey(listener.getEvent()))
-            {
-                eventListenerMap.put(listener.getEvent(), new TreeSet<>(Comparator.comparing(Listener::getPriority)));
-            }
             eventListenerMap.get(listener.getEvent()).remove(listener);
             Logger.log("Deregistered listener " + listener);
         }

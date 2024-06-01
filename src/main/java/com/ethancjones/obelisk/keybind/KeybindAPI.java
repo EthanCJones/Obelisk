@@ -45,12 +45,15 @@ public class KeybindAPI
             GLFW.glfwSetKeyCallback(MinecraftClient.getInstance().getWindow().getHandle(), ((window, key, scancode, action, mods) ->
             {
                 MinecraftClient.getInstance().keyboard.onKey(window, key, scancode, action, mods);
-                if (action == 1)
+                if (MinecraftClient.getInstance().currentScreen == null)
                 {
-                    EventAPI.call(new EventKeyPress(key));
-                    if (keybinds.containsKey(key))
+                    if (action == 1)
                     {
-                        keybinds.get(key).forEach(Runnable::run);
+                        EventAPI.call(new EventKeyPress(key));
+                        if (keybinds.containsKey(key))
+                        {
+                            keybinds.get(key).forEach(Runnable::run);
+                        }
                     }
                 }
             }));

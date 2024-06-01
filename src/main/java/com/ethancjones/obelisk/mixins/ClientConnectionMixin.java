@@ -9,8 +9,10 @@
 package com.ethancjones.obelisk.mixins;
 
 import com.ethancjones.obelisk.event.EventAPI;
+import com.ethancjones.obelisk.event.events.EventReceivePacket;
 import com.ethancjones.obelisk.event.events.EventSendPacket;
 import net.minecraft.network.ClientConnection;
+import net.minecraft.network.listener.PacketListener;
 import net.minecraft.network.packet.Packet;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -24,6 +26,16 @@ public class ClientConnectionMixin
     public void ias$send(Packet<?> packet, CallbackInfo ci)
     {
         EventSendPacket event = (EventSendPacket) EventAPI.call(new EventSendPacket(packet));
+        if (event.isCallCancelled())
+        {
+            ci.cancel();
+        }
+    }
+
+    @Inject(method = "handlePacket", at = @At("HEAD"), cancellable = true)
+    private static void ias$handlePacket(Packet<?> packet, PacketListener listener, CallbackInfo ci)
+    {
+        EventReceivePacket event = (EventReceivePacket) EventAPI.call(new EventReceivePacket(packet));
         if (event.isCallCancelled())
         {
             ci.cancel();

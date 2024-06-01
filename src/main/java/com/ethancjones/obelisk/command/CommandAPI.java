@@ -13,6 +13,7 @@ import com.ethancjones.obelisk.event.events.EventKeyPress;
 import com.ethancjones.obelisk.event.events.EventSendPacket;
 import com.ethancjones.obelisk.module.Module;
 import com.ethancjones.obelisk.module.ModuleAPI;
+import com.ethancjones.obelisk.util.ChatUtil;
 import com.ethancjones.obelisk.util.Logger;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ChatScreen;
@@ -66,6 +67,7 @@ public class CommandAPI
                             if (noDotArgs.length == 1)
                             {
                                 module.toggle();
+                                ChatUtil.addChatMessage(module.getName() + (module.isEnabled() ? " enabled" : " disabled"));
                                 break;
                             }
                             else

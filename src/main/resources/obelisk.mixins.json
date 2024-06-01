@@ -11,8 +11,9 @@
     "defaultRequire": 1
   },
   "client": [
-    "RenderMixin",
+    "ChatMixin",
     "MinecraftMixin",
-    "PlayerMixin"
+    "PlayerMixin",
+    "RenderMixin"
   ]
 }
