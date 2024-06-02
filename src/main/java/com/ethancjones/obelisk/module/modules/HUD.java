@@ -12,7 +12,6 @@ import com.ethancjones.obelisk.event.Listener;
 import com.ethancjones.obelisk.event.events.EventRender2D;
 import com.ethancjones.obelisk.module.Module;
 import com.ethancjones.obelisk.module.ModuleAPI;
-import com.ethancjones.obelisk.util.ChatUtil;
 import net.minecraft.client.MinecraftClient;
 
 public class HUD extends Module

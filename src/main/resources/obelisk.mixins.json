@@ -4,16 +4,18 @@
   "package": "com.ethancjones.obelisk.mixins",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "ChatMixin",
     "ClientConnectionMixin",
-    "HUDMixin"
+    "HUDMixin",
+    "LightingMixin",
+    "MinecraftMixin",
+    "PlayerMixin",
+    "RenderMixin"
   ],
   "injectors": {
     "defaultRequire": 1
   },
   "client": [
-    "ChatMixin",
-    "MinecraftMixin",
-    "PlayerMixin",
-    "RenderMixin"
+    "AbstractPlayerMixin"
   ]
 }

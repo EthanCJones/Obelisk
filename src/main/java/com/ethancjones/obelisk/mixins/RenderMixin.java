@@ -55,7 +55,7 @@ public class RenderMixin
         RenderSystem.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
         RenderSystem.lineWidth(1.5F);
 
-        EventAPI.call(new EventRender3D(buffer, camera.getPos(), MinecraftClient.getInstance().player.getRotationVecClient()));
+        EventAPI.call(new EventRender3D(buffer, camera.getPos(), MinecraftClient.getInstance().player.getRotationVecClient(), tickDelta));
 
         RenderSystem.disableBlend();
         RenderSystem.enableCull();

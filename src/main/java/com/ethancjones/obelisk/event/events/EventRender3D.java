@@ -17,11 +17,13 @@ public class EventRender3D extends Event
     public final BufferBuilder buffer;
     public final Vec3d camera;
     public final Vec3d look;
+    public final float tickDelta;
 
-    public EventRender3D(BufferBuilder buffer, Vec3d camera, Vec3d look)
+    public EventRender3D(BufferBuilder buffer, Vec3d camera, Vec3d look, float tickDelta)
     {
         this.buffer = buffer;
         this.camera = camera;
         this.look = look;
+        this.tickDelta = tickDelta;
     }
 }
