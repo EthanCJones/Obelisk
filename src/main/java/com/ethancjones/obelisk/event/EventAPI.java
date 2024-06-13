@@ -7,27 +7,48 @@
  */
 package com.ethancjones.obelisk.event;
 
+import com.ethancjones.obelisk.event.events.EventTick;
 import com.ethancjones.obelisk.util.Logger;
+import net.minecraft.client.MinecraftClient;
 
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.TreeSet;
+import java.util.*;
 
 public class EventAPI
 {
     //Stores all currently active listeners to be called
-    private final static HashMap<Class<? extends Event>, LinkedList<Listener<?>>> eventListenerMap = new HashMap<>();
+    private static final HashMap<Class<? extends Event>, LinkedList<Listener<?>>> eventListenerMap = new HashMap<>();
+
+    private static final EventTick eventTick = new EventTick();
 
     //Registers a listener to be called with the event
     //Allows for multiple listeners to be registered
     public static void register(Listener<?>... listeners)
     {
-        for (Listener<?> listener : listeners)
+        for (Listener listener : listeners)
         {
-            eventListenerMap.putIfAbsent(listener.getEvent(), new LinkedList<>());
-            eventListenerMap.get(listener.getEvent()).add(listener);
-            eventListenerMap.get(listener.getEvent()).sort(Comparator.comparing(Listener::getPriority));
+            if (listener.getEvent() == EventTick.class)
+            {
+                new Timer().scheduleAtFixedRate(new TimerTask()
+                {
+                    @Override
+                    public void run()
+                    {
+                        if (MinecraftClient.getInstance().world != null)
+                        {
+                            if (MinecraftClient.getInstance().player != null)
+                            {
+                                listener.call(eventTick);
+                            }
+                        }
+                    }
+                }, 0, 1);
+            }
+            else
+            {
+                eventListenerMap.putIfAbsent(listener.getEvent(), new LinkedList<>());
+                eventListenerMap.get(listener.getEvent()).add(listener);
+                eventListenerMap.get(listener.getEvent()).sort(Comparator.comparing(Listener::getPriority));
+            }
             Logger.log("Registered listener " + listener);
         }
     }

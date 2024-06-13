@@ -24,6 +24,12 @@ public class Command<T>
         this.callString = command;
     }
 
+    public Command(String hostString, String command)
+    {
+        this.hostString = hostString;
+        this.callString = command;
+    }
+
     public Command(String hostString, String command, T value)
     {
         this.hostString = hostString;

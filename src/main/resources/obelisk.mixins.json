@@ -10,12 +10,11 @@
     "LightingMixin",
     "MinecraftMixin",
     "PlayerMixin",
-    "RenderMixin"
+    "RenderMixin",
+    "CameraMixin",
+    "KeyboardInputMixin"
   ],
   "injectors": {
     "defaultRequire": 1
-  },
-  "client": [
-    "AbstractPlayerMixin"
-  ]
+  }
 }

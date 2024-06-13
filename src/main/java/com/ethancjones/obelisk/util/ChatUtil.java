@@ -10,7 +10,7 @@ package com.ethancjones.obelisk.util;
 import com.ethancjones.obelisk.event.EventAPI;
 import com.ethancjones.obelisk.event.Listener;
 import com.ethancjones.obelisk.event.events.EventInit;
-import com.ethancjones.obelisk.gui.TrueTypeFont;
+import com.ethancjones.obelisk.render.TrueTypeFont;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.PlainTextContent;

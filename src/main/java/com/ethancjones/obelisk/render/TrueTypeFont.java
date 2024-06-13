@@ -6,9 +6,8 @@
  * Minecraft engine
  * ==========================================================
  */
-package com.ethancjones.obelisk.gui;
+package com.ethancjones.obelisk.render;
 
-import com.ethancjones.obelisk.Obelisk;
 import com.ethancjones.obelisk.util.ChatUtil;
 import com.ethancjones.obelisk.util.Logger;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -35,31 +34,32 @@ import java.io.IOException;
 
 public class TrueTypeFont
 {
-    private int characterLimit = 256;
-    private int scales = 5;
-    private float[] textureSizeX = new float[scales];
-    private float[] textureSizeY = new float[scales];
-    private Identifier[] resource = new Identifier[scales];
-    private GlyphVector[] glyphVectors = new GlyphVector[scales];
-    private float[] ascent = new float[scales];
-    private float[] descent = new float[scales];
-    private int fontSize;
+    private final char glyphEnd = 192;
+    private final int scales = 5;
+    private final float[] textureSizeX = new float[scales];
+    private final float[] textureSizeY = new float[scales];
+    private final Identifier[] resource = new Identifier[scales];
+    private final GlyphVector[] glyphVectors = new GlyphVector[scales];
+    private final float[] ascent = new float[scales];
+    private final float[] descent = new float[scales];
+    private final int fontSize;
 
     public TrueTypeFont(String fontName, int size)
     {
         fontSize = size;
         StringBuilder stringBuilder = new StringBuilder();
-        for (char character = 0; character < characterLimit; character++)
+        for (char character = 0; character < glyphEnd; character++)
         {
             stringBuilder.append(character);
         }
         for (int scale = 1; scale < scales; ++scale)
         {
             Font font = new Font(fontName, Font.PLAIN, size * scale);
-            GlyphVector glyphVector = font.layoutGlyphVector(new FontRenderContext(null, true, true), stringBuilder.toString().toCharArray(), 0, characterLimit, Font.LAYOUT_LEFT_TO_RIGHT);
+            GlyphVector glyphVector = font.layoutGlyphVector(new FontRenderContext(null, true, true), stringBuilder.toString().toCharArray(), 0, stringBuilder.length(), Font.LAYOUT_LEFT_TO_RIGHT);
             glyphVectors[scale] = glyphVector;
+            double xPos = 0;
             double baseline = 0;
-            for (int character = 0; character < characterLimit; ++character)
+            for (int character = 0; character < glyphEnd; character++)
             {
                 if (character == 111)
                 {
@@ -73,7 +73,8 @@ public class TrueTypeFont
                         descent[scale] = (float) (glyphVector.getGlyphMetrics(character).getBounds2D().getMaxY() - baseline);
                     }
                 }
-                glyphVector.setGlyphPosition(character, new Point2D.Double(glyphVector.getGlyphPosition(character).getX() * 1.2, size * scale));
+                glyphVector.setGlyphPosition(character, new Point2D.Double(xPos, size * scale));
+                xPos += glyphVector.getGlyphLogicalBounds(character).getBounds().getWidth() * 1.1;
             }
             textureSizeX[scale] = (float) glyphVector.getLogicalBounds().getWidth();
             textureSizeY[scale] = (float) (glyphVector.getLogicalBounds().getHeight() + descent[scale]);
@@ -120,8 +121,8 @@ public class TrueTypeFont
         {
             if (text.codePointAt(pos) == 167)
             {
-                ++pos;
-                if (pos >= text.length())
+                pos++;
+                if (pos > text.length())
                 {
                     break;
                 }
@@ -129,12 +130,11 @@ public class TrueTypeFont
                 {
                     color = Formatting.byCode(text.charAt(pos)).getColorValue();
                 }
-                ++pos;
             }
             else
             {
                 int codePoint = text.codePointAt(pos);
-                if (codePoint >= characterLimit)
+                if (codePoint > glyphEnd)
                 {
                     pos++;
                     continue;
@@ -145,8 +145,8 @@ public class TrueTypeFont
                 }
                 renderChar(context, scale, codePoint, x, y, (float)(color >> 16) / 255.0F, (float)(color >> 8 & 255) / 255.0F, (float)(color & 255) / 255.0F, 1);
                 x += glyphVectors[scale].getGlyphMetrics(codePoint).getAdvanceX();
-                ++pos;
             }
+            pos++;
         }
         Tessellator.getInstance().draw();
         context.getMatrices().pop();
@@ -185,9 +185,9 @@ public class TrueTypeFont
         context.getMatrices().push();
         context.getMatrices().scale(1.0F / scale, 1.0F / scale, 1.0F / scale);
         Tessellator.getInstance().getBuffer().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
-        Tessellator.getInstance().getBuffer().vertex(context.getMatrices().peek().getPositionMatrix(), 0, (float) textureSizeY[scale], 0).texture(0, 1).next();
-        Tessellator.getInstance().getBuffer().vertex(context.getMatrices().peek().getPositionMatrix(), (float) textureSizeX[scale], (float) textureSizeY[scale], 0).texture(1, 1).next();
-        Tessellator.getInstance().getBuffer().vertex(context.getMatrices().peek().getPositionMatrix(), (float) textureSizeX[scale], 0, 0).texture(1, 0).next();
+        Tessellator.getInstance().getBuffer().vertex(context.getMatrices().peek().getPositionMatrix(), 0, textureSizeY[scale], 0).texture(0, 1).next();
+        Tessellator.getInstance().getBuffer().vertex(context.getMatrices().peek().getPositionMatrix(), textureSizeX[scale], textureSizeY[scale], 0).texture(1, 1).next();
+        Tessellator.getInstance().getBuffer().vertex(context.getMatrices().peek().getPositionMatrix(), textureSizeX[scale], 0, 0).texture(1, 0).next();
         Tessellator.getInstance().getBuffer().vertex(context.getMatrices().peek().getPositionMatrix(), 0, 0, 0).texture(0, 0).next();
         Tessellator.getInstance().draw();
         context.getMatrices().pop();
@@ -203,7 +203,7 @@ public class TrueTypeFont
         while (pos < formattedText.length())
         {
             int codePoint = formattedText.codePointAt(pos);
-            if (codePoint >= characterLimit)
+            if (codePoint >= glyphEnd)
             {
                 pos++;
                 continue;

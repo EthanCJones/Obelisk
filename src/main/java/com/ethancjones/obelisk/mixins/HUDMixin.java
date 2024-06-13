@@ -20,9 +20,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(InGameHud.class)
 public class HUDMixin
 {
-    @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/LayeredDrawer;render(Lnet/minecraft/client/gui/DrawContext;F)V", shift = At.Shift.AFTER))
+    @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/LayeredDrawer;render(Lnet/minecraft/client/gui/DrawContext;F)V", shift = At.Shift.BEFORE), cancellable = true)
     public void ias$render(DrawContext context, float tickDelta, CallbackInfo ci)
     {
-        EventAPI.call(new EventRender2D(context));
+        if (EventAPI.call(new EventRender2D(context)).isCallCancelled())
+        {
+            ci.cancel();
+        }
     }
 }

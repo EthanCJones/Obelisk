@@ -8,6 +8,7 @@
  */
 package com.ethancjones.obelisk.module.modules;
 
+import com.ethancjones.obelisk.command.Command;
 import com.ethancjones.obelisk.event.EventAPI;
 import com.ethancjones.obelisk.event.Listener;
 import com.ethancjones.obelisk.event.events.EventChatMessage;
@@ -37,16 +38,19 @@ public class Chat extends Module
     private int x = 2;
     private int y = -420;
 
-    private int chatTime = 10000;
-    private int chatWidth = 300;
+    private final Command<Integer> chatTime;
+    private final Command<Integer> chatWidth;
     private int currentChatSize;
-    private int messageCount = 6;
+    private final Command<Integer> messageCount;
 
     private int scrollPoint = 0;
 
     public Chat()
     {
         super("Chat", 0, 0);
+        chatTime = new Command<>(getName(), "time", 6000, 1000, 10000);
+        chatWidth = new Command<>(getName(), "width", 300, 100, 500);
+        messageCount = new Command<>(getName(), "count", 6, 1, 10);
         EventAPI.register(onChatMessage);
         toggle();
     }
@@ -91,7 +95,7 @@ public class Chat extends Module
             Long[] times = chatMessages.keySet().toArray(new Long[0]);
             for (int point = 0; point < chatMessages.size() - scrollPoint; point++)
             {
-                if (currentTime - times[point] < chatTime || MinecraftClient.getInstance().currentScreen instanceof ChatScreen)
+                if (currentTime - times[point] < chatTime.getValue() || MinecraftClient.getInstance().currentScreen instanceof ChatScreen)
                 {
                     StringBuilder text = new StringBuilder();
                     LinkedList<TextColor> prevColor = new LinkedList<>();
@@ -113,7 +117,7 @@ public class Chat extends Module
                     StringBuilder splitText = new StringBuilder();
                     for (char c : text.toString().toCharArray())
                     {
-                        if (ChatUtil.CHAT.getStringWidth(splitText.toString()) + ChatUtil.CHAT.getStringWidth(String.valueOf(c)) >= chatWidth)
+                        if (ChatUtil.CHAT.getStringWidth(splitText.toString()) + ChatUtil.CHAT.getStringWidth(String.valueOf(c)) >= chatWidth.getValue())
                         {
                             lines.add(splitText.toString());
                             splitText.delete(0, splitText.length());
@@ -121,7 +125,7 @@ public class Chat extends Module
                         splitText.append(c);
                     }
                     lines.add(splitText.toString());
-                    if (lines.size() > messageCount)
+                    if (lines.size() > messageCount.getValue())
                     {
                         lines.removeFirst();
                     }
@@ -129,7 +133,7 @@ public class Chat extends Module
                 }
             }
 
-            event.context.fill(x, y + 9, x + chatWidth, y - (lines.size() * ChatUtil.CHAT.getFontSize()) + ChatUtil.CHAT.getFontSize(), 0xAA000000);
+            event.context.fill(x, y + 9, x + chatWidth.getValue(), y - (lines.size() * ChatUtil.CHAT.getFontSize()) + ChatUtil.CHAT.getFontSize(), 0xAA000000);
 
             int lineY = y;
 
@@ -170,7 +174,7 @@ public class Chat extends Module
                     {
                         super.render(context, mouseX, mouseY, delta);
                         int renderY = y - currentChatSize * ChatUtil.CHAT.getFontSize() - 2;
-                        context.fill(x, renderY, x + chatWidth, renderY + ChatUtil.CHAT.getFontSize(), 0xAA000000);
+                        context.fill(x, renderY, x + chatWidth.getValue(), renderY + ChatUtil.CHAT.getFontSize(), 0xAA000000);
                         ChatUtil.CHAT.drawString(context, "Chat", x + 2, renderY + 1, true);
                     }
 
@@ -178,9 +182,9 @@ public class Chat extends Module
                     public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount)
                     {
                         scrollPoint += (int) verticalAmount;
-                        if (scrollPoint > chatMessages.size() - messageCount + 1)
+                        if (scrollPoint > chatMessages.size() - messageCount.getValue() + 1)
                         {
-                            scrollPoint = chatMessages.size() - messageCount + 1;
+                            scrollPoint = chatMessages.size() - messageCount.getValue() + 1;
                         }
                         if (scrollPoint < 0)
                         {

@@ -11,6 +11,7 @@ import com.ethancjones.obelisk.command.Command;
 import com.ethancjones.obelisk.event.Listener;
 import com.ethancjones.obelisk.event.events.EventMove;
 import com.ethancjones.obelisk.module.Module;
+import com.ethancjones.obelisk.module.ModuleAPI;
 import org.lwjgl.glfw.GLFW;
 
 public class Speed extends Module
@@ -20,7 +21,7 @@ public class Speed extends Module
     public Speed()
     {
         super("Speed", 0xFFAAFFAA, GLFW.GLFW_KEY_R);
-        speed = new Command<>(getName(), "speed", 1.25D, 0.1D, 10D);
+        speed = new Command<>(getName(), "speed", 2D, 0.1D, 10D);
     }
 
     private final Listener<EventMove> onMove = new Listener<>()
@@ -28,7 +29,8 @@ public class Speed extends Module
         @Override
         public void call(EventMove event)
         {
-            event.movement = event.movement.multiply(speed.getValue(), 1, speed.getValue());
+            double mulSpeed = (ModuleAPI.antiCheat.isEnabled() ? 1.25 : speed.getValue());
+            event.movement = event.movement.multiply(mulSpeed, 1, mulSpeed);
         }
     };
 }

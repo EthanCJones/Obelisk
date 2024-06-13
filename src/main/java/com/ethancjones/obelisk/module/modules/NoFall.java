@@ -7,17 +7,17 @@
  */
 package com.ethancjones.obelisk.module.modules;
 
+import com.ethancjones.obelisk.Obelisk;
 import com.ethancjones.obelisk.event.Listener;
-import com.ethancjones.obelisk.event.events.EventPlayerUpdatePost;
 import com.ethancjones.obelisk.event.events.EventPlayerUpdatePre;
 import com.ethancjones.obelisk.module.Module;
+import com.ethancjones.obelisk.module.ModuleAPI;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import org.lwjgl.glfw.GLFW;
 
 public class NoFall extends Module
 {
-    boolean trueOnGround;
-
     public NoFall()
     {
         super("NoFall", 0xFF00FF00, GLFW.GLFW_KEY_N);
@@ -28,17 +28,20 @@ public class NoFall extends Module
         @Override
         public void call(EventPlayerUpdatePre event)
         {
-            trueOnGround = MinecraftClient.getInstance().player.isOnGround();
-            MinecraftClient.getInstance().player.setOnGround(true);
-        }
-    };
-
-    private final Listener<EventPlayerUpdatePost> onPlayerUpdatePost = new Listener<>()
-    {
-        @Override
-        public void call(EventPlayerUpdatePost event)
-        {
-            MinecraftClient.getInstance().player.setOnGround(trueOnGround);
+            if (MinecraftClient.getInstance().player.fallDistance >= 3)
+            {
+                MinecraftClient.getInstance().player.fallDistance = 0;
+                if (ModuleAPI.antiCheat.isEnabled())
+                {
+                    event.cancelCall();
+                    MinecraftClient.getInstance().getNetworkHandler().sendPacket(new PlayerMoveC2SPacket.OnGroundOnly(true));
+                    Obelisk.sendInvalidMovement();
+                }
+                else
+                {
+                    MinecraftClient.getInstance().player.setOnGround(true);
+                }
+            }
         }
     };
 }

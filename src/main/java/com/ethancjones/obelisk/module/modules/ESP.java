@@ -10,8 +10,8 @@ package com.ethancjones.obelisk.module.modules;
 import com.ethancjones.obelisk.event.Listener;
 import com.ethancjones.obelisk.event.events.EventRender3D;
 import com.ethancjones.obelisk.module.Module;
+import com.ethancjones.obelisk.render.RenderUtils;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.BufferRenderer;
 import net.minecraft.client.render.VertexFormat;
 import net.minecraft.client.render.VertexFormats;
@@ -21,6 +21,8 @@ import org.lwjgl.glfw.GLFW;
 
 public class ESP extends Module
 {
+    int distance = 128;
+
     public ESP()
     {
         super("ESP", 0, GLFW.GLFW_KEY_Y);
@@ -31,15 +33,17 @@ public class ESP extends Module
         @Override
         public void call(EventRender3D event)
         {
-            event.buffer.begin(VertexFormat.DrawMode.DEBUG_LINES, VertexFormats.POSITION_COLOR);
+            event.buffer.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
             for (Entity entity : MinecraftClient.getInstance().world.getEntities())
             {
                 if (entity instanceof LivingEntity)
                 {
                     if (entity != MinecraftClient.getInstance().player)
                     {
-                        event.buffer.vertex(event.camera.x + event.look.x, event.camera.y + event.look.y, event.camera.z + event.look.z).color(1.0F, 1.0F, 1.0F, 1.0F).next();
-                        event.buffer.vertex(entity.getX(), entity.getY(), entity.getZ()).color(1.0F, 1.0F, 1.0F, 1.0F).next();
+                        float distanceClamped = Math.clamp(MinecraftClient.getInstance().player.distanceTo(entity), 1, distance);
+                        float red = 1 / distanceClamped;
+                        float green = distanceClamped / distance;
+                        RenderUtils.render3DBoxWithRotation(event.buffer, entity.getBoundingBox(), ((LivingEntity) entity).headYaw, red, green, 0, 0.2F);
                     }
                 }
             }

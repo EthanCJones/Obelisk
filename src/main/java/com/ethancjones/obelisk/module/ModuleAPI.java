@@ -16,9 +16,12 @@ public class ModuleAPI
 {
     private final static ArrayList<Module> modules = new ArrayList<>();
 
+    public static AntiCheat antiCheat = new AntiCheat();
+
     //Initialises all modules automatically at runtime
     public static void initialise()
     {
+        register(antiCheat);
         register(new HUD());
         register(new Speed());
         register(new ESP());
@@ -27,6 +30,9 @@ public class ModuleAPI
         register(new NoFall());
         register(new Flight());
         register(new Freecam());
+        register(new Search());
+        register(new Step());
+        register(new AntiRotation());
         modules.forEach(Module::initialise);
     }
 

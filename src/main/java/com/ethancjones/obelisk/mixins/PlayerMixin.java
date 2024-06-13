@@ -29,10 +29,13 @@ public class PlayerMixin
         return ((EventMove) EventAPI.call(new EventMove(vec3d))).movement;
     }
 
-    @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/AbstractClientPlayerEntity;tick()V", shift = At.Shift.AFTER))
+    @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/AbstractClientPlayerEntity;tick()V", shift = At.Shift.AFTER), cancellable = true)
     public void ias$tickPre(CallbackInfo ci)
     {
-        EventAPI.call(new EventPlayerUpdatePre());
+        if (EventAPI.call(new EventPlayerUpdatePre()).isCallCancelled())
+        {
+            ci.cancel();
+        }
     }
 
     @Inject(method = "tick", at = @At("TAIL"))

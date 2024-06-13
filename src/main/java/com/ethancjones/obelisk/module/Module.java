@@ -11,6 +11,7 @@ import com.ethancjones.obelisk.command.Command;
 import com.ethancjones.obelisk.command.CommandAPI;
 import com.ethancjones.obelisk.event.EventAPI;
 import com.ethancjones.obelisk.event.Listener;
+import com.ethancjones.obelisk.event.events.EventTick;
 import com.ethancjones.obelisk.keybind.Keybind;
 import com.ethancjones.obelisk.keybind.KeybindAPI;
 
@@ -79,7 +80,11 @@ public class Module
             {
                 try
                 {
-                    EventAPI.register((Listener<?>) field.get(this));
+                    Listener<?> listener = (Listener<?>) field.get(this);
+                    if (listener.getEvent() != EventTick.class)
+                    {
+                        EventAPI.register(listener);
+                    }
                 }
                 catch (IllegalAccessException e)
                 {
