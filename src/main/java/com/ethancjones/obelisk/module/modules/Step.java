@@ -53,27 +53,39 @@ public class Step extends Module
                 }
                 acTick++;
             }
-            else if (MinecraftClient.getInstance().player.isOnGround() && MinecraftClient.getInstance().player.horizontalCollision)
+            else if (MinecraftClient.getInstance().player.isOnGround() && (event.movement.x != 0 || event.movement.z != 0))
             {
+                //Player box without touching ground and offset by movement
+                Box playerBox = MinecraftClient.getInstance().player.getBoundingBox().offset(0, 0.01, 0);
                 offsetY = 0;
-                for (int y = 0; y < (ModuleAPI.antiCheat.isEnabled() ? 1 : height.getValue()); y++)
+                //Check if the player will collide with block on next movement update
+                if (MinecraftClient.getInstance().world.getBlockCollisions(MinecraftClient.getInstance().player, playerBox.offset(event.movement.x, 0, event.movement.z)).iterator().hasNext())
                 {
-                    //Player box without touching ground
-                    Box playerBox = MinecraftClient.getInstance().player.getBoundingBox().offset(0, 0.01, 0);
-                    //Offset according to movement and y step height
-                    if (MinecraftClient.getInstance().world.getBlockCollisions(MinecraftClient.getInstance().player, playerBox.offset(event.movement.x, y, event.movement.z)).iterator().hasNext())
+                    //Check all y values for the step height
+                    for (int y = 0; y < (ModuleAPI.antiCheat.isEnabled() ? 1 : height.getValue()); y++)
                     {
-                        //Offset according to the block up check if air
-                        if (!MinecraftClient.getInstance().world.getBlockCollisions(MinecraftClient.getInstance().player, playerBox.offset(event.movement.x, y + 1, event.movement.z)).iterator().hasNext())
+                        //Check the blocks above the player's head to see if movement is possible
+                        if (!MinecraftClient.getInstance().world.getBlockCollisions(MinecraftClient.getInstance().player, playerBox.offset(0, y, 0)).iterator().hasNext())
                         {
-                            offsetY = y + 1;
+                            //Get the blocks that are to be stepped on to
+                            Iterable<VoxelShape> stepBox = MinecraftClient.getInstance().world.getBlockCollisions(MinecraftClient.getInstance().player, playerBox.offset(event.movement.x, y, event.movement.z));
+                            if (stepBox.iterator().hasNext())
+                            {
+                                //Offset according to the block up check if air
+                                if (!MinecraftClient.getInstance().world.getBlockCollisions(MinecraftClient.getInstance().player, playerBox.offset(event.movement.x, y + 1, event.movement.z)).iterator().hasNext())
+                                {
+                                    //Set step height to the highest block
+                                    offsetY = y + stepBox.iterator().next().getBoundingBox().getLengthY();
+                                }
+                            }
                         }
                     }
                 }
+
                 if (offsetY > 0)
                 {
-                    moveX = Math.clamp(event.movement.x, -0.001, 0.001);
-                    moveZ = Math.clamp(event.movement.z, -0.001, 0.001);
+                    moveX = event.movement.x;
+                    moveZ = event.movement.z;
                     if (ModuleAPI.antiCheat.isEnabled())
                     {
                         acTick = 1;
