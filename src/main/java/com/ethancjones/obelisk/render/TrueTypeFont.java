@@ -13,10 +13,7 @@ import com.ethancjones.obelisk.util.Logger;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.render.GameRenderer;
-import net.minecraft.client.render.Tessellator;
-import net.minecraft.client.render.VertexFormat;
-import net.minecraft.client.render.VertexFormats;
+import net.minecraft.client.render.*;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.util.Formatting;
@@ -114,7 +111,7 @@ public class TrueTypeFont
         RenderSystem.enableBlend();
         context.getMatrices().push();
         context.getMatrices().scale(1.0F / scale, 1.0F / scale, 1.0F / scale);
-        Tessellator.getInstance().getBuffer().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
+        BufferBuilder buffer = Tessellator.getInstance().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
         int pos = 0;
         int color = Formatting.byCode('f').getColorValue();
         while (pos < text.length())
@@ -141,19 +138,19 @@ public class TrueTypeFont
                 }
                 if (shadow)
                 {
-                    renderChar(context, scale, codePoint, x + 2, y + 2, 0, 0, 0, 1);
+                    renderChar(buffer, context, scale, codePoint, x + 2, y + 2, 0, 0, 0, 1);
                 }
-                renderChar(context, scale, codePoint, x, y, (float)(color >> 16) / 255.0F, (float)(color >> 8 & 255) / 255.0F, (float)(color & 255) / 255.0F, 1);
+                renderChar(buffer, context, scale, codePoint, x, y, (float)(color >> 16) / 255.0F, (float)(color >> 8 & 255) / 255.0F, (float)(color & 255) / 255.0F, 1);
                 x += glyphVectors[scale].getGlyphMetrics(codePoint).getAdvanceX();
             }
             pos++;
         }
-        Tessellator.getInstance().draw();
+        RenderUtils.draw(buffer);
         context.getMatrices().pop();
         RenderSystem.disableBlend();
     }
 
-    public void renderChar(DrawContext context, int scale, int character, float x, float y, float r, float g, float b, float a)
+    public void renderChar(BufferBuilder buffer, DrawContext context, int scale, int character, float x, float y, float r, float g, float b, float a)
     {
         float coordX = (float) glyphVectors[scale].getGlyphPosition(character).getX();
         float coordY = (float) (glyphVectors[scale].getGlyphPosition(character).getY() - ascent[scale]);
@@ -164,10 +161,10 @@ public class TrueTypeFont
         float textureY = coordY / textureSizeY[scale];
         float endTextureX = (coordX + advance) / textureSizeX[scale];
         float endTextureY = (coordY + ascent[scale] + descent[scale]) / textureSizeY[scale];
-        Tessellator.getInstance().getBuffer().vertex(context.getMatrices().peek().getPositionMatrix(), x, endY, 0).texture(textureX, endTextureY).color(r, g, b, a).next();
-        Tessellator.getInstance().getBuffer().vertex(context.getMatrices().peek().getPositionMatrix(), endX, endY, 0).texture(endTextureX, endTextureY).color(r, g, b, a).next();
-        Tessellator.getInstance().getBuffer().vertex(context.getMatrices().peek().getPositionMatrix(), endX, y, 0).texture(endTextureX, textureY).color(r, g, b, a).next();
-        Tessellator.getInstance().getBuffer().vertex(context.getMatrices().peek().getPositionMatrix(), x, y, 0).texture(textureX, textureY).color(r, g, b, a).next();
+        buffer.vertex(context.getMatrices().peek().getPositionMatrix(), x, endY, 0).texture(textureX, endTextureY).color(r, g, b, a);
+        buffer.vertex(context.getMatrices().peek().getPositionMatrix(), endX, endY, 0).texture(endTextureX, endTextureY).color(r, g, b, a);
+        buffer.vertex(context.getMatrices().peek().getPositionMatrix(), endX, y, 0).texture(endTextureX, textureY).color(r, g, b, a);
+        buffer.vertex(context.getMatrices().peek().getPositionMatrix(), x, y, 0).texture(textureX, textureY).color(r, g, b, a);
     }
 
     public void drawCentredString(DrawContext context, String text, float x, float y, boolean shadow)
@@ -184,12 +181,12 @@ public class TrueTypeFont
         RenderSystem.enableBlend();
         context.getMatrices().push();
         context.getMatrices().scale(1.0F / scale, 1.0F / scale, 1.0F / scale);
-        Tessellator.getInstance().getBuffer().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
-        Tessellator.getInstance().getBuffer().vertex(context.getMatrices().peek().getPositionMatrix(), 0, textureSizeY[scale], 0).texture(0, 1).next();
-        Tessellator.getInstance().getBuffer().vertex(context.getMatrices().peek().getPositionMatrix(), textureSizeX[scale], textureSizeY[scale], 0).texture(1, 1).next();
-        Tessellator.getInstance().getBuffer().vertex(context.getMatrices().peek().getPositionMatrix(), textureSizeX[scale], 0, 0).texture(1, 0).next();
-        Tessellator.getInstance().getBuffer().vertex(context.getMatrices().peek().getPositionMatrix(), 0, 0, 0).texture(0, 0).next();
-        Tessellator.getInstance().draw();
+        BufferBuilder buffer = Tessellator.getInstance().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
+        buffer.vertex(context.getMatrices().peek().getPositionMatrix(), 0, textureSizeY[scale], 0).texture(0, 1);
+        buffer.vertex(context.getMatrices().peek().getPositionMatrix(), textureSizeX[scale], textureSizeY[scale], 0).texture(1, 1);
+        buffer.vertex(context.getMatrices().peek().getPositionMatrix(), textureSizeX[scale], 0, 0).texture(1, 0);
+        buffer.vertex(context.getMatrices().peek().getPositionMatrix(), 0, 0, 0).texture(0, 0);
+        RenderUtils.draw(buffer);
         context.getMatrices().pop();
         RenderSystem.disableBlend();
     }

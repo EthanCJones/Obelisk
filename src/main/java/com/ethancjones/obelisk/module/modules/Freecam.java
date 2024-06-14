@@ -8,10 +8,12 @@
 package com.ethancjones.obelisk.module.modules;
 
 import com.ethancjones.obelisk.command.Command;
+import com.ethancjones.obelisk.event.EventAPI;
 import com.ethancjones.obelisk.event.Listener;
 import com.ethancjones.obelisk.event.events.EventCamera;
 import com.ethancjones.obelisk.event.events.EventKeyboardInput;
 import com.ethancjones.obelisk.event.events.EventRender2D;
+import com.ethancjones.obelisk.event.events.EventTick;
 import com.ethancjones.obelisk.module.Module;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.math.Direction;
@@ -67,6 +69,10 @@ public class Freecam extends Module
         @Override
         public void call(EventCamera event)
         {
+            if (MinecraftClient.getInstance().player.isDead())
+            {
+                toggle();
+            }
             if (MinecraftClient.getInstance().options.jumpKey.isPressed())
             {
                 yDelta += speed.getValue() * event.tickDelta;

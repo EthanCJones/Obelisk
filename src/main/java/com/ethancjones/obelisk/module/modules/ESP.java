@@ -12,9 +12,7 @@ import com.ethancjones.obelisk.event.events.EventRender3D;
 import com.ethancjones.obelisk.module.Module;
 import com.ethancjones.obelisk.render.RenderUtils;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.BufferRenderer;
-import net.minecraft.client.render.VertexFormat;
-import net.minecraft.client.render.VertexFormats;
+import net.minecraft.client.render.*;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import org.lwjgl.glfw.GLFW;
@@ -33,7 +31,7 @@ public class ESP extends Module
         @Override
         public void call(EventRender3D event)
         {
-            event.buffer.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
+            BufferBuilder buffer = Tessellator.getInstance().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
             for (Entity entity : MinecraftClient.getInstance().world.getEntities())
             {
                 if (entity instanceof LivingEntity)
@@ -43,11 +41,11 @@ public class ESP extends Module
                         float distanceClamped = Math.clamp(MinecraftClient.getInstance().player.distanceTo(entity), 1, distance);
                         float red = 1 / distanceClamped;
                         float green = distanceClamped / distance;
-                        RenderUtils.render3DBoxWithRotation(event.buffer, entity.getBoundingBox(), ((LivingEntity) entity).headYaw, red, green, 0, 0.2F);
+                        RenderUtils.render3DBoxWithRotation(buffer, entity.getBoundingBox(), ((LivingEntity) entity).headYaw, red, green, 0, 0.2F);
                     }
                 }
             }
-            BufferRenderer.drawWithGlobalProgram(event.buffer.end());
+            RenderUtils.draw(buffer);
         }
     };
 }

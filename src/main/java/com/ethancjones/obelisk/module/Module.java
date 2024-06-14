@@ -103,7 +103,11 @@ public class Module
             {
                 try
                 {
-                    EventAPI.deregister((Listener<?>) field.get(this));
+                    Listener<?> listener = (Listener<?>) field.get(this);
+                    if (listener.getEvent() != EventTick.class)
+                    {
+                        EventAPI.deregister(listener);
+                    }
                 }
                 catch (IllegalAccessException e)
                 {

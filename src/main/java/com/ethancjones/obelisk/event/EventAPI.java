@@ -37,7 +37,13 @@ public class EventAPI
                         {
                             if (MinecraftClient.getInstance().player != null)
                             {
-                                listener.call(eventTick);
+                                try
+                                {
+                                    listener.call(eventTick);
+                                }
+                                catch (Exception ignored)
+                                {
+                                }
                             }
                         }
                     }

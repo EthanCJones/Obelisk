@@ -20,9 +20,7 @@ import com.ethancjones.obelisk.util.ChatUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.BufferRenderer;
-import net.minecraft.client.render.VertexFormat;
-import net.minecraft.client.render.VertexFormats;
+import net.minecraft.client.render.*;
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
@@ -52,7 +50,7 @@ public class Search extends Module
             @Override
             public void run(String[] args)
             {
-                searchBlocks.add(Registries.BLOCK.get(new Identifier(args[2])));
+                searchBlocks.add(Registries.BLOCK.get(Identifier.of(args[2])));
                 ChatUtil.addChatMessage("Added " + args[2] + " to the search");
             }
         };
@@ -61,7 +59,7 @@ public class Search extends Module
             @Override
             public void run(String[] args)
             {
-                searchBlocks.remove(Registries.BLOCK.get(new Identifier(args[2])));
+                searchBlocks.remove(Registries.BLOCK.get(Identifier.of(args[2])));
                 ChatUtil.addChatMessage("Removed " + args[2] + " from the search");
             }
         };
@@ -126,7 +124,7 @@ public class Search extends Module
         @Override
         public void call(EventRender3D event)
         {
-            event.buffer.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
+            BufferBuilder buffer = Tessellator.getInstance().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
             foundBlocks.forEach(((blockPos, integer) ->
             {
                 int x = blockPos.getX();
@@ -138,9 +136,9 @@ public class Search extends Module
                 float blue = (integer & 0xFF) / 255.0F;
                 float alpha = 0.2F;
 
-                RenderUtils.render3DBox(event.buffer, x, y, z, x + 1, y + 1, z + 1, red, green, blue, alpha);
+                RenderUtils.render3DBox(buffer, x, y, z, x + 1, y + 1, z + 1, red, green, blue, alpha);
             }));
-            BufferRenderer.drawWithGlobalProgram(event.buffer.end());
+            RenderUtils.draw(buffer);
         }
     };
 

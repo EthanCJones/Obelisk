@@ -13,6 +13,7 @@ import com.ethancjones.obelisk.event.events.EventRender3D;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.*;
+import net.minecraft.client.util.BufferAllocator;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.MathHelper;
@@ -28,11 +29,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(GameRenderer.class)
 public class RenderMixin
 {
-    @Unique
-    private final BufferBuilder buffer = new BufferBuilder(1024);
-
-    @Inject(method = "renderWorld", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/WorldRenderer;render(FJZLnet/minecraft/client/render/Camera;Lnet/minecraft/client/render/GameRenderer;Lnet/minecraft/client/render/LightmapTextureManager;Lorg/joml/Matrix4f;Lorg/joml/Matrix4f;)V", shift = At.Shift.AFTER))
-    public void ias$render(float tickDelta, long limitTime, CallbackInfo ci)
+    @Inject(method = "renderWorld", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/WorldRenderer;render(Lnet/minecraft/client/render/RenderTickCounter;ZLnet/minecraft/client/render/Camera;Lnet/minecraft/client/render/GameRenderer;Lnet/minecraft/client/render/LightmapTextureManager;Lorg/joml/Matrix4f;Lorg/joml/Matrix4f;)V", shift = At.Shift.AFTER))
+    public void ias$render(RenderTickCounter tickCounter, CallbackInfo ci)
     {
         //Sets up the rendering environment
         //Reverses translations done to stop view bobbing from affecting rendering
@@ -55,7 +53,7 @@ public class RenderMixin
         RenderSystem.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
         RenderSystem.lineWidth(1.5F);
 
-        EventAPI.call(new EventRender3D(buffer, camera.getPos(), MinecraftClient.getInstance().player.getRotationVecClient(), tickDelta));
+        EventAPI.call(new EventRender3D(camera.getPos(), MinecraftClient.getInstance().player.getRotationVecClient(), tickCounter));
 
         RenderSystem.disableBlend();
         RenderSystem.enableCull();

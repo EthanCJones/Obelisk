@@ -115,12 +115,21 @@ public class Chat extends Module
                         return true;
                     }));
                     StringBuilder splitText = new StringBuilder();
-                    for (char c : text.toString().toCharArray())
+                    char prevColorLine = Formatting.WHITE.getCode();
+                    String message = text.toString();
+                    for (int pos = 0; pos < message.length(); pos++)
                     {
+                        char c = message.charAt(pos);
+                        if (c == Formatting.FORMATTING_CODE_PREFIX)
+                        {
+                            prevColorLine = message.charAt(pos + 1);
+                        }
                         if (ChatUtil.CHAT.getStringWidth(splitText.toString()) + ChatUtil.CHAT.getStringWidth(String.valueOf(c)) >= chatWidth.getValue())
                         {
                             lines.add(splitText.toString());
                             splitText.delete(0, splitText.length());
+                            splitText.append(Formatting.FORMATTING_CODE_PREFIX);
+                            splitText.append(prevColorLine);
                         }
                         splitText.append(c);
                     }
