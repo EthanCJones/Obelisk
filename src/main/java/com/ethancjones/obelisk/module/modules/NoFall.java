@@ -21,6 +21,7 @@ public class NoFall extends Module
     public NoFall()
     {
         super("NoFall", 0xFF00FF00, GLFW.GLFW_KEY_N);
+        toggle();
     }
 
     private final Listener<EventPlayerUpdatePre> onPlayerUpdatePre = new Listener<>()

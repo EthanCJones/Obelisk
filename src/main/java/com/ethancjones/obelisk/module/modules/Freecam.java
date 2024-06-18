@@ -10,13 +10,11 @@ package com.ethancjones.obelisk.module.modules;
 import com.ethancjones.obelisk.command.Command;
 import com.ethancjones.obelisk.event.EventAPI;
 import com.ethancjones.obelisk.event.Listener;
-import com.ethancjones.obelisk.event.events.EventCamera;
-import com.ethancjones.obelisk.event.events.EventKeyboardInput;
-import com.ethancjones.obelisk.event.events.EventRender2D;
-import com.ethancjones.obelisk.event.events.EventTick;
+import com.ethancjones.obelisk.event.events.*;
 import com.ethancjones.obelisk.module.Module;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
 import org.lwjgl.glfw.GLFW;
 
 public class Freecam extends Module
@@ -27,9 +25,9 @@ public class Freecam extends Module
     private float initYaw;
     private float initPitch;
 
-    private double xDelta;
-    private double yDelta;
-    private double zDelta;
+    private double x;
+    private double y;
+    private double z;
 
     private Command<Double> speed;
 
@@ -37,17 +35,18 @@ public class Freecam extends Module
     {
         super("Freecam", 0xFF00FFFF, GLFW.GLFW_KEY_C);
         speed = new Command<>(getName(), "speed", 0.3D, 0.1D, 1D);
+        EventAPI.register(onTick);
     }
 
     @Override
     protected void onEnable()
     {
         super.onEnable();
-        initYaw = MinecraftClient.getInstance().player.getYaw();
-        initPitch = MinecraftClient.getInstance().player.getPitch();
-        xDelta = 0;
-        yDelta = 0;
-        zDelta = 0;
+        initYaw = MinecraftClient.getInstance().gameRenderer.getCamera().getYaw();
+        initPitch = MinecraftClient.getInstance().gameRenderer.getCamera().getPitch();
+        x = MinecraftClient.getInstance().gameRenderer.getCamera().getPos().x;
+        y = MinecraftClient.getInstance().gameRenderer.getCamera().getPos().y;
+        z = MinecraftClient.getInstance().gameRenderer.getCamera().getPos().z;
         MinecraftClient.getInstance().gameRenderer.setRenderHand(false);
         MinecraftClient.getInstance().chunkCullingEnabled = false;
         MinecraftClient.getInstance().worldRenderer.reload();
@@ -73,21 +72,8 @@ public class Freecam extends Module
             {
                 toggle();
             }
-            if (MinecraftClient.getInstance().options.jumpKey.isPressed())
-            {
-                yDelta += speed.getValue() * event.tickDelta;
-            }
-            if (MinecraftClient.getInstance().options.sneakKey.isPressed())
-            {
-                yDelta -= speed.getValue() * event.tickDelta;
-            }
-            xDelta += forward * -Math.sin(Math.toRadians(MinecraftClient.getInstance().player.getYaw())) * event.tickDelta * speed.getValue();
-            zDelta += forward * Math.cos(Math.toRadians(MinecraftClient.getInstance().player.getYaw())) * event.tickDelta * speed.getValue();
 
-            xDelta += sideways * -Math.sin(Math.toRadians(MinecraftClient.getInstance().player.getYaw() - 90)) * event.tickDelta * speed.getValue();
-            zDelta += sideways * Math.cos(Math.toRadians(MinecraftClient.getInstance().player.getYaw() - 90)) * event.tickDelta * speed.getValue();
-
-            event.pos = event.pos.add(xDelta, yDelta, zDelta);
+            event.pos = new Vec3d(x, y, z);
         }
     };
 
@@ -116,6 +102,36 @@ public class Freecam extends Module
         public void call(EventRender2D event)
         {
             event.cancelCall();
+        }
+    };
+
+    private final Listener<EventTick> onTick = new Listener<>()
+    {
+        @Override
+        public void call(EventTick event)
+        {
+            if (isEnabled())
+            {
+                if (event.shouldCall(10))
+                {
+                    if (MinecraftClient.getInstance().options.jumpKey.isPressed())
+                    {
+                        y += speed.getValue();
+                    }
+                    if (MinecraftClient.getInstance().options.sneakKey.isPressed())
+                    {
+                        y -= speed.getValue();
+                    }
+
+                    float yaw = MinecraftClient.getInstance().gameRenderer.getCamera().getYaw();
+
+                    x += forward * -Math.sin(Math.toRadians(yaw)) * speed.getValue();
+                    z += forward * Math.cos(Math.toRadians(yaw)) * speed.getValue();
+
+                    x += sideways * -Math.sin(Math.toRadians(yaw - 90)) * speed.getValue();
+                    z += sideways * Math.cos(Math.toRadians(yaw - 90)) * speed.getValue();
+                }
+            }
         }
     };
 }

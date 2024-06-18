@@ -85,31 +85,34 @@ public class Search extends Module
         @Override
         public void call(EventTick event)
         {
-            if (event.shouldCall(interval.getValue()))
+            if (isEnabled())
             {
-                foundBlocks.forEach((blockPos, integer) ->
+                if (event.shouldCall(interval.getValue()))
                 {
-                    if (!searchBlocks.contains(MinecraftClient.getInstance().world.getBlockState(blockPos).getBlock()))
+                    foundBlocks.forEach((blockPos, integer) ->
                     {
-                        foundBlocks.remove(blockPos);
-                    }
-                });
-                for (int x = -range.getValue(); x < range.getValue(); x++)
-                {
-                    for (int z = -range.getValue(); z < range.getValue(); z++)
-                    {
-                        for (int y = 0; y < 256; y++)
+                        if (!searchBlocks.contains(MinecraftClient.getInstance().world.getBlockState(blockPos).getBlock()))
                         {
-                            int blockX = MinecraftClient.getInstance().player.getBlockX() + x;
-                            int blockZ = MinecraftClient.getInstance().player.getBlockZ() + z;
-                            BlockPos blockPos = new BlockPos(blockX, y, blockZ);
-                            Block block = MinecraftClient.getInstance().world.getBlockState(blockPos).getBlock();
-                            if (searchBlocks.contains(block))
+                            foundBlocks.remove(blockPos);
+                        }
+                    });
+                    for (int x = -range.getValue(); x < range.getValue(); x++)
+                    {
+                        for (int z = -range.getValue(); z < range.getValue(); z++)
+                        {
+                            for (int y = 0; y < 256; y++)
                             {
-                                foundBlocks.putIfAbsent(blockPos, block.getDefaultMapColor().color);
-                                if (foundBlocks.size() >= maxBlocks.getValue())
+                                int blockX = MinecraftClient.getInstance().player.getBlockX() + x;
+                                int blockZ = MinecraftClient.getInstance().player.getBlockZ() + z;
+                                BlockPos blockPos = new BlockPos(blockX, y, blockZ);
+                                Block block = MinecraftClient.getInstance().world.getBlockState(blockPos).getBlock();
+                                if (searchBlocks.contains(block))
                                 {
-                                    return;
+                                    foundBlocks.putIfAbsent(blockPos, block.getDefaultMapColor().color);
+                                    if (foundBlocks.size() >= maxBlocks.getValue())
+                                    {
+                                        return;
+                                    }
                                 }
                             }
                         }
