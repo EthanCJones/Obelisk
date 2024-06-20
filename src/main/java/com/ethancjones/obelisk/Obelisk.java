@@ -12,6 +12,7 @@ import com.ethancjones.obelisk.command.CommandAPI;
 import com.ethancjones.obelisk.keybind.KeybindAPI;
 import com.ethancjones.obelisk.module.ModuleAPI;
 import com.ethancjones.obelisk.util.ChatUtil;
+import com.ethancjones.obelisk.util.ServerInfo;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.network.packet.PacketType;
@@ -26,6 +27,7 @@ public class Obelisk implements ModInitializer
         CommandAPI.initialise();
         ModuleAPI.initialise();
         ChatUtil.initialise();
+        ServerInfo.initialise();
     }
 
     //Sends an invalid movement to the server

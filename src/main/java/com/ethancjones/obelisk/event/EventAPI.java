@@ -18,8 +18,6 @@ public class EventAPI
     //Stores all currently active listeners to be called
     private static final HashMap<Class<? extends Event>, LinkedList<Listener<?>>> eventListenerMap = new HashMap<>();
 
-    private static final EventTick eventTick = new EventTick();
-
     //Registers a listener to be called with the event
     //Allows for multiple listeners to be registered
     public static void register(Listener<?>... listeners)
@@ -28,6 +26,7 @@ public class EventAPI
         {
             if (listener.getEvent() == EventTick.class)
             {
+                EventTick eventTick = new EventTick();
                 new Timer().scheduleAtFixedRate(new TimerTask()
                 {
                     @Override
@@ -74,12 +73,15 @@ public class EventAPI
     {
         if (eventListenerMap.containsKey(event.getClass()))
         {
-            for (Listener listener : eventListenerMap.get(event.getClass()))
+            synchronized (eventListenerMap)
             {
-                listener.call(event);
-                if (listener.shouldEndCall())
+                for (Listener listener : eventListenerMap.get(event.getClass()))
                 {
-                    break;
+                    listener.call(event);
+                    if (listener.shouldEndCall())
+                    {
+                        break;
+                    }
                 }
             }
         }

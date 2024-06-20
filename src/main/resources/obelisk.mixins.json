@@ -4,15 +4,18 @@
   "package": "com.ethancjones.obelisk.mixins",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "CameraMixin",
     "ChatMixin",
     "ClientConnectionMixin",
+    "ClientPlayerEntityMixin",
     "HUDMixin",
+    "KeyboardInputMixin",
     "LightingMixin",
+    "LivingEntityMixin",
     "MinecraftMixin",
-    "PlayerMixin",
+    "PlayerEntityMixin",
     "RenderMixin",
-    "CameraMixin",
-    "KeyboardInputMixin"
+    "WorldRenderMixin"
   ],
   "injectors": {
     "defaultRequire": 1

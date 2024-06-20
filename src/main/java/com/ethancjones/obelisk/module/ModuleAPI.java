@@ -17,6 +17,8 @@ public class ModuleAPI
     private final static ArrayList<Module> modules = new ArrayList<>();
 
     public static AntiCheat antiCheat = new AntiCheat();
+    public static AntiPush antiPush;
+    public static Optimisation optimisation;
 
     //Initialises all modules automatically at runtime
     public static void initialise()
@@ -33,6 +35,13 @@ public class ModuleAPI
         register(new Search());
         register(new Step());
         register(new AntiRotation());
+        register(new Waypoint());
+        register(new Breadcrumbs());
+        antiPush = new AntiPush();
+        register(antiPush);
+        register(new KillAura());
+        optimisation = new Optimisation();
+        register(optimisation);
         modules.forEach(Module::initialise);
     }
 

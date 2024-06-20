@@ -9,6 +9,7 @@
  */
 package com.ethancjones.obelisk.command;
 
+import com.ethancjones.obelisk.util.ChatUtil;
 import com.ethancjones.obelisk.util.Logger;
 
 public class Command<T>
@@ -122,6 +123,7 @@ public class Command<T>
         {
             setValue((T) Double.valueOf(args[2]));
         }
+        ChatUtil.addChatMessage(getCallString() + " set to: " + getValue());
         Logger.log("Command run: " + hostString + " " + callString);
     }
 

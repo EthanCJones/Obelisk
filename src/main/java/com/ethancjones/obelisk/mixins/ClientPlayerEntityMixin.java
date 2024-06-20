@@ -21,7 +21,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ClientPlayerEntity.class)
-public class PlayerMixin
+public class ClientPlayerEntityMixin
 {
     @ModifyVariable(method = "move", at = @At("HEAD"), argsOnly = true)
     public Vec3d ias$move(Vec3d vec3d)

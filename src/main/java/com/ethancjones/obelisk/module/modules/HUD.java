@@ -7,18 +7,25 @@
  */
 package com.ethancjones.obelisk.module.modules;
 
+import com.ethancjones.obelisk.Obelisk;
 import com.ethancjones.obelisk.command.Command;
 import com.ethancjones.obelisk.event.Listener;
 import com.ethancjones.obelisk.event.events.EventRender2D;
 import com.ethancjones.obelisk.module.Module;
 import com.ethancjones.obelisk.module.ModuleAPI;
 import com.ethancjones.obelisk.util.ChatUtil;
+import com.ethancjones.obelisk.util.ServerInfo;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.util.Formatting;
+
+import java.text.DecimalFormat;
 
 public class HUD extends Module
 {
     private final Command<Boolean> watermark;
     private final Command<Boolean> list;
+
+    private final DecimalFormat decimalFormat = new DecimalFormat(".##");
 
     public HUD()
     {
@@ -54,6 +61,13 @@ public class HUD extends Module
                         }
                     }
                 }
+            }
+
+            if (MinecraftClient.getInstance().currentScreen == null)
+            {
+                event.context.drawTextWithShadow(MinecraftClient.getInstance().textRenderer, Formatting.GRAY + "PING: " + Formatting.WHITE + ServerInfo.ping, 2, MinecraftClient.getInstance().getWindow().getScaledHeight() - 33, 0xFFFFFFFF);
+                event.context.drawTextWithShadow(MinecraftClient.getInstance().textRenderer, Formatting.GRAY + "TPS: " + Formatting.WHITE + decimalFormat.format(ServerInfo.TPS), 2, MinecraftClient.getInstance().getWindow().getScaledHeight() - 22, 0xFFFFFFFF);
+                event.context.drawTextWithShadow(MinecraftClient.getInstance().textRenderer, Formatting.GRAY + "XYZ " + Formatting.WHITE + MinecraftClient.getInstance().player.getBlockX() + Formatting.GRAY + ", " + Formatting.WHITE + MinecraftClient.getInstance().player.getBlockY() + Formatting.GRAY + ", " + Formatting.WHITE + MinecraftClient.getInstance().player.getBlockZ(), 2, MinecraftClient.getInstance().getWindow().getScaledHeight() - 11, 0xFFFFFFFF);
             }
         }
     };
