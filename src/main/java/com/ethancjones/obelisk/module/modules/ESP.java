@@ -38,10 +38,13 @@ public class ESP extends Module
                 {
                     if (entity != MinecraftClient.getInstance().player)
                     {
-                        float distanceClamped = Math.clamp(MinecraftClient.getInstance().player.distanceTo(entity), 1, distance);
-                        float red = 1 / distanceClamped;
-                        float green = distanceClamped / distance;
-                        RenderUtils.render3DBoxWithRotation(buffer, entity.getBoundingBox(), ((LivingEntity) entity).headYaw, red, green, 0, 0.2F);
+                        if (((LivingEntity) entity).getHealth() > 0)
+                        {
+                            float distanceClamped = Math.clamp(MinecraftClient.getInstance().player.distanceTo(entity), 1, distance);
+                            float red = 1 / distanceClamped;
+                            float green = distanceClamped / distance;
+                            RenderUtils.render3DBoxWithRotation(buffer, entity.getBoundingBox(), ((LivingEntity) entity).headYaw, red, green, 0, 0.2F);
+                        }
                     }
                 }
             }

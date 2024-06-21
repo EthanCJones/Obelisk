@@ -1,15 +1,21 @@
 /* ==========================================================
  * Author : Ethan Jones
- * Date   : 01/06/2024
+ * Date   : 21/06/2024
  * TODO   : Nothing
- * Uses   : Called after the client sends positional updates
- * to the server
+ * Uses   : Called when the player attacks an entity
  * ==========================================================
  */
 package com.ethancjones.obelisk.event.events;
 
 import com.ethancjones.obelisk.event.Event;
+import net.minecraft.entity.Entity;
 
-public class EventPlayerUpdatePost extends Event
+public class EventAttack extends Event
 {
+    public Entity target;
+
+    public EventAttack(Entity target)
+    {
+        this.target = target;
+    }
 }

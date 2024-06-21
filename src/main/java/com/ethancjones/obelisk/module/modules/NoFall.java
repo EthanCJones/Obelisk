@@ -9,9 +9,12 @@ package com.ethancjones.obelisk.module.modules;
 
 import com.ethancjones.obelisk.Obelisk;
 import com.ethancjones.obelisk.event.Listener;
+import com.ethancjones.obelisk.event.events.EventPlayerUpdatePost;
 import com.ethancjones.obelisk.event.events.EventPlayerUpdatePre;
 import com.ethancjones.obelisk.module.Module;
 import com.ethancjones.obelisk.module.ModuleAPI;
+import com.ethancjones.obelisk.util.ClientInfo;
+import com.ethancjones.obelisk.util.ServerInfo;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import org.lwjgl.glfw.GLFW;
@@ -29,9 +32,8 @@ public class NoFall extends Module
         @Override
         public void call(EventPlayerUpdatePre event)
         {
-            if (MinecraftClient.getInstance().player.fallDistance >= 3)
+            if (ServerInfo.fallDistance >= 2)
             {
-                MinecraftClient.getInstance().player.fallDistance = 0;
                 if (ModuleAPI.antiCheat.isEnabled())
                 {
                     event.cancelCall();
@@ -42,6 +44,18 @@ public class NoFall extends Module
                 {
                     MinecraftClient.getInstance().player.setOnGround(true);
                 }
+            }
+        }
+    };
+
+    private final Listener<EventPlayerUpdatePost> onPlayerUpdatePost = new Listener<>()
+    {
+        @Override
+        public void call(EventPlayerUpdatePost event)
+        {
+            if (ServerInfo.onGround != ClientInfo.onGround)
+            {
+                MinecraftClient.getInstance().player.setOnGround(ClientInfo.onGround);
             }
         }
     };

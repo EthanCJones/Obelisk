@@ -42,6 +42,8 @@ public class ModuleAPI
         register(new KillAura());
         optimisation = new Optimisation();
         register(optimisation);
+        register(new Criticals());
+        register(new Speedmine());
         modules.forEach(Module::initialise);
     }
 

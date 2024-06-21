@@ -1,15 +1,21 @@
 /* ==========================================================
  * Author : Ethan Jones
- * Date   : 01/06/2024
+ * Date   : 21/06/2024
  * TODO   : Nothing
- * Uses   : Called after the client sends positional updates
- * to the server
+ * Uses   : Called when the player swings their hand
  * ==========================================================
  */
 package com.ethancjones.obelisk.event.events;
 
 import com.ethancjones.obelisk.event.Event;
+import net.minecraft.util.Hand;
 
-public class EventPlayerUpdatePost extends Event
+public class EventSwingHand extends Event
 {
+    public Hand hand;
+
+    public EventSwingHand(Hand hand)
+    {
+        this.hand = hand;
+    }
 }

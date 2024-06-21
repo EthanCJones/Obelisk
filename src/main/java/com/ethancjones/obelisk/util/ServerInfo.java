@@ -12,8 +12,10 @@ import com.ethancjones.obelisk.Obelisk;
 import com.ethancjones.obelisk.event.EventAPI;
 import com.ethancjones.obelisk.event.Listener;
 import com.ethancjones.obelisk.event.events.EventReceivePacket;
+import com.ethancjones.obelisk.event.events.EventSendPacket;
 import com.ethancjones.obelisk.event.events.EventTick;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.network.packet.c2s.play.RequestCommandCompletionsC2SPacket;
 import net.minecraft.network.packet.s2c.login.LoginHelloS2CPacket;
 import net.minecraft.network.packet.s2c.play.CommandSuggestionsS2CPacket;
@@ -27,6 +29,7 @@ public class ServerInfo
     public static float yaw;
     public static float pitch;
     public static boolean onGround;
+    public static float fallDistance;
 
     private static long lastTPSTime = 1;
     public static double TPS;
@@ -37,10 +40,11 @@ public class ServerInfo
     public static void initialise()
     {
         EventAPI.register(onTick);
+        EventAPI.register(onSendPacket);
         EventAPI.register(onReceivePacket);
     }
 
-    private static Listener<EventTick> onTick = new Listener<>()
+    private static final Listener<EventTick> onTick = new Listener<>()
     {
         @Override
         public void call(EventTick event)
@@ -67,7 +71,42 @@ public class ServerInfo
         }
     };
 
-    private static Listener<EventReceivePacket> onReceivePacket = new Listener<>()
+    private static final Listener<EventSendPacket> onSendPacket = new Listener<EventSendPacket>()
+    {
+        @Override
+        public void call(EventSendPacket event)
+        {
+            if (event.packet instanceof PlayerMoveC2SPacket packet)
+            {
+                if (packet.getY(MinecraftClient.getInstance().player.getY()) == Double.NEGATIVE_INFINITY)
+                    return;
+
+                x = packet.getX(MinecraftClient.getInstance().player.getX());
+                double tempY = packet.getY(MinecraftClient.getInstance().player.getY());
+                if (((PlayerMoveC2SPacket) event.packet).isOnGround() || MinecraftClient.getInstance().player.isTouchingWater() || (MinecraftClient.getInstance().player.isHoldingOntoLadder() && !MinecraftClient.getInstance().player.verticalCollision))
+                {
+                    if (fallDistance != 0)
+                    {
+                        fallDistance = 0;
+                    }
+                }
+                else
+                {
+                    if (tempY < y)
+                    {
+                        fallDistance += y - tempY;
+                    }
+                }
+                y = tempY;
+                z = packet.getZ(MinecraftClient.getInstance().player.getZ());
+                yaw = packet.getYaw(MinecraftClient.getInstance().player.getYaw());
+                pitch = packet.getPitch(MinecraftClient.getInstance().player.getPitch());
+                onGround = packet.isOnGround();
+            }
+        }
+    };
+
+    private static final Listener<EventReceivePacket> onReceivePacket = new Listener<>()
     {
         @Override
         public void call(EventReceivePacket event)

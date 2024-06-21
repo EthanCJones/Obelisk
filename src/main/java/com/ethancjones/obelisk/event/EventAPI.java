@@ -12,6 +12,7 @@ import com.ethancjones.obelisk.util.Logger;
 import net.minecraft.client.MinecraftClient;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class EventAPI
 {
@@ -73,15 +74,21 @@ public class EventAPI
     {
         if (eventListenerMap.containsKey(event.getClass()))
         {
-            synchronized (eventListenerMap)
+            List<Listener<?>> listeners = null;
+            try
             {
-                for (Listener listener : eventListenerMap.get(event.getClass()))
+                listeners = List.copyOf(eventListenerMap.get(event.getClass()));
+            }
+            catch (Exception ignored)
+            {}
+            if (listeners == null)
+                return event;
+            for (Listener listener : listeners)
+            {
+                listener.call(event);
+                if (listener.shouldEndCall())
                 {
-                    listener.call(event);
-                    if (listener.shouldEndCall())
-                    {
-                        break;
-                    }
+                    break;
                 }
             }
         }

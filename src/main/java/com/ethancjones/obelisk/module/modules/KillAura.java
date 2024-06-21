@@ -8,7 +8,6 @@
  */
 package com.ethancjones.obelisk.module.modules;
 
-import com.ethancjones.obelisk.Obelisk;
 import com.ethancjones.obelisk.command.Command;
 import com.ethancjones.obelisk.event.EventAPI;
 import com.ethancjones.obelisk.event.Listener;
@@ -17,20 +16,15 @@ import com.ethancjones.obelisk.event.events.EventPlayerUpdatePre;
 import com.ethancjones.obelisk.event.events.EventReceivePacket;
 import com.ethancjones.obelisk.event.events.EventTick;
 import com.ethancjones.obelisk.module.Module;
+import com.ethancjones.obelisk.module.ModuleAPI;
 import com.ethancjones.obelisk.util.AngleUtil;
 import com.ethancjones.obelisk.util.ClientInfo;
-import com.ethancjones.obelisk.util.ServerInfo;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.mob.*;
-import net.minecraft.entity.passive.*;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.vehicle.BoatEntity;
-import net.minecraft.entity.vehicle.MinecartEntity;
 import net.minecraft.network.packet.s2c.play.EntityDamageS2CPacket;
-import net.minecraft.network.packet.s2c.play.EntityStatusS2CPacket;
 import net.minecraft.util.Hand;
 import org.lwjgl.glfw.GLFW;
 
@@ -40,6 +34,7 @@ public class KillAura extends Module
 {
     private LivingEntity target;
     private final HashMap<Integer, Long> hurtTimes = new HashMap<>();
+    private long lastAttackTime;
 
     private final Command<Double> distance;
 
@@ -83,18 +78,21 @@ public class KillAura extends Module
             if (isEnabled())
             {
                 LivingEntity potentialTarget = null;
-                float priority = 0;
+                float priority = 9999;
 
                 for (Entity entity : MinecraftClient.getInstance().world.getEntities())
                 {
-                    if (checkEntity(entity))
+                    if (entity instanceof LivingEntity)
                     {
                         LivingEntity livingEntity = (LivingEntity) entity;
-                        float tempPriority = getEntityPriority(livingEntity);
-                        if (tempPriority > priority)
+                        if (checkEntity(livingEntity))
                         {
-                            priority = tempPriority;
-                            potentialTarget = livingEntity;
+                            float tempPriority = getEntityPriority(livingEntity);
+                            if (tempPriority < priority)
+                            {
+                                priority = tempPriority;
+                                potentialTarget = livingEntity;
+                            }
                         }
                     }
                 }
@@ -104,14 +102,15 @@ public class KillAura extends Module
                 if (target != null)
                 {
                     hurtTimes.putIfAbsent(target.getId(), 0L);
-                    if (!MinecraftClient.getInstance().player.handSwinging)
+                    if (MinecraftClient.getInstance().player.getAttackCooldownProgress(0.5F) >= 1F)
                     {
-                        if (MinecraftClient.getInstance().player.getAttackCooldownProgress(0.5F) >= 1)
+                        if (System.nanoTime() / 1000000 - lastAttackTime >= 100)
                         {
                             if (AngleUtil.lookingAtEntity(target))
                             {
                                 if (System.nanoTime() / 1000000 - hurtTimes.get(target.getId()) >= 500)
                                 {
+                                    lastAttackTime = System.nanoTime() / 1000000;
                                     MinecraftClient.getInstance().interactionManager.attackEntity(MinecraftClient.getInstance().player, target);
                                     MinecraftClient.getInstance().player.swingHand(Hand.MAIN_HAND);
                                 }
@@ -135,13 +134,13 @@ public class KillAura extends Module
         }
     };
 
-    private boolean checkEntity(Entity entity)
+    private boolean checkEntity(LivingEntity entity)
     {
         if (entity == null)
         {
             return false;
         }
-        if (!entity.isAlive())
+        if (entity.getHealth() <= 0)
         {
             return false;
         }

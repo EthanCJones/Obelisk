@@ -15,7 +15,9 @@
     "MinecraftMixin",
     "PlayerEntityMixin",
     "RenderMixin",
-    "WorldRenderMixin"
+    "WorldRenderMixin",
+    "ClientPlayerInteractionMixin",
+    "IClientPlayerInteractionMixin"
   ],
   "injectors": {
     "defaultRequire": 1

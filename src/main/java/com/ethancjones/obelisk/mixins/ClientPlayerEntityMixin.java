@@ -12,7 +12,9 @@ import com.ethancjones.obelisk.event.EventAPI;
 import com.ethancjones.obelisk.event.events.EventMove;
 import com.ethancjones.obelisk.event.events.EventPlayerUpdatePost;
 import com.ethancjones.obelisk.event.events.EventPlayerUpdatePre;
+import com.ethancjones.obelisk.event.events.EventSwingHand;
 import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.Vec3d;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -42,5 +44,14 @@ public class ClientPlayerEntityMixin
     public void ias$tickPost(CallbackInfo ci)
     {
         EventAPI.call(new EventPlayerUpdatePost());
+    }
+
+    @Inject(method = "swingHand", at = @At("HEAD"), cancellable = true)
+    public void ias$swingHand(Hand hand, CallbackInfo ci)
+    {
+        if (EventAPI.call(new EventSwingHand(hand)).isCallCancelled())
+        {
+            ci.cancel();
+        }
     }
 }
